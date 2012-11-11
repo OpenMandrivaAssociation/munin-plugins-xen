@@ -1,0 +1,30 @@
+--- xen_traffic_all~	2008-06-25 14:35:50.000000000 +0200
++++ xen_traffic_all	2008-06-25 14:36:43.000000000 +0200
+@@ -44,16 +44,18 @@
+     exit 0
+ fi
+ 
+-DOMAINS=$(xm list | awk '{print $1}' | egrep -v "^(Name|Domain-0)")
++DOMAINS=$(xm list | awk '!/(Name|Domain-0)/ {print $1}')
+ for dom in $DOMAINS; do
+-    dev=$( xm network-list $dom |\
++    devs=$( xm network-list $dom |\
+         egrep "^[0-9]+" | sed 's@^.*vif/\([0-9]*\)/\([0-9]*\).*$@vif\1.\2@')
+     name=$( echo $dom | sed -e's/-/_/g' )
+-    awk -v name="$name" -v interface="$dev" \
+-        'BEGIN { gsub(/\./, "\\.", interface) } \
+-        $1 ~ "^" interface ":" {
+-            split($0, a, /: */); $0 = a[2]; \
+-            print name"Down.value " $1 "\n"name"Up.value " $9 \
+-        }' \
+-        /proc/net/dev
++    for dev in $devs; do
++	awk -v name="$name" -v interface="$dev" \
++	    'BEGIN { gsub(/\./, "\\.", interface) } \
++	    $1 ~ "^" interface ":" {
++		split($0, a, /: */); $0 = a[2]; \
++		print name"Down.value " $1 "\n"name"Up.value " $9 \
++	    }' \
++	    /proc/net/dev
++    done
+ done

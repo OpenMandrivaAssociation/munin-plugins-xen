@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# Script to monitor CPU usage of Xen domains
+#
+# Parameters understood:
+#
+#     conifg    (required)
+#     autoconf  (optinal - used by munin-config)
+#
+
+MAXDOMAINS=16
+
+if [ "$1" = "autoconf" ]; then
+        if which xm > /dev/null ; then
+                echo yes
+                exit 0
+        fi
+        echo "no (xm not found)"
+        exit 1
+fi
+
+if [ "$1" = "config" ]; then
+        echo 'graph_title Xen Domain CPU Usage'
+        echo 'graph_args --base 1000 -l 0'
+        echo 'graph_scale no'
+	echo 'graph_vlabel Percentage of real CPU time'
+        echo 'graph_category xen'
+        echo 'graph_info This graph shows the average CPU percentage used by each domain'
+        xm list | tail -n +2 | \
+        while read name domid mem cpu state time; do
+                name=`echo $name | sed -e"s/[-\.]/_/g"`
+                echo "$name.label $name"
+                echo "$name.type DERIVE"
+               if [ "$name" = "Domain_0" ]; then
+                       echo "$name.draw AREA"
+               else
+                       echo "$name.draw STACK"
+               fi
+                echo "$name.min 0"
+                echo "$name.info Percentage of CPU usage for $name"
+        done
+        exit 0
+fi
+
+xm list | tail -n +2 | \
+while read name domid mem cpu state time; do
+        name=`echo $name | sed -e"s/[-\.]/_/g"`
+	# This will extract execution time in deciseconds.
+        time=`echo $time | sed -e "s/\.//"`
+	# Here we make a guess. Since execution time is normalized on a per-second basis, if a
+	# domain reaches 1 second of normalized execution time, it is using 100% CPU-time for one CPU.
+	# So, being our value in deciseconds, we multiply it by 10 to obtain a percentage (or 1/100 seconds)
+	time=$(($time*10))
+        echo "$name.value $time"
+done

@@ -50,3 +50,21 @@ rm -rf %{buildroot}
 %{_datadir}/munin/plugins/*
 %config(noreplace) %{_sysconfdir}/munin/plugin-conf.d/xen
 
+
+
+%changelog
+* Fri Dec 10 2010 Oden Eriksson <oeriksson@mandriva.com> 20080625-3mdv2011.0
++ Revision: 620422
+- the mass rebuild of 2010.0 packages
+
+* Fri Sep 04 2009 Thierry Vignaud <tv@mandriva.org> 20080625-2mdv2010.0
++ Revision: 430125
+- rebuild
+
+* Wed Jun 25 2008 Guillaume Rousse <guillomovitch@mandriva.org> 20080625-1mdv2009.0
++ Revision: 229025
+- import munin-plugins-xen
+
+
+* Wed Jun 25 2008 Guillaume Rousse <guillomovitch@mandriva.org> 20080625-1mdv2009.0
+- first mandriva package

@@ -1,6 +1,6 @@
 %define name	munin-plugins-xen
 %define version	20080625
-%define release	%mkrel 3
+%define release	4
 
 Name:		%{name}
 Version:	%{version}
